@@ -11,4 +11,10 @@ $routes->post('pengguna/login', 'Pengguna::login');
 $routes->post('pengguna/reset', 'Pengguna::resetPassword');
 $routes->get('getUserFavorites', 'Favorite::getUserFavorites');
 $routes->post('toggleFavorite', 'Favorite::toggleFavorite');
-
+$routes->get('wisata', 'WisataController::index');
+$routes->get('wisata/(:num)', 'WisataController::show/$1');
+$routes->get('wisata/kategori/(:num)', 'WisataController::byKategori/$1');
+$routes->post('wisata', 'WisataController::create');
+$routes->get('kategori', 'KategoriController::index');
+$routes->get('tampilwisata', 'TampilWisata::index');
+$routes->get('tampilwisata/kategori/(:num)', 'TampilWisata::byKategori/$1');
