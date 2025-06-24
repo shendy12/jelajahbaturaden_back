@@ -20,3 +20,6 @@ $routes->get('tampilwisata', 'TampilWisata::index');
 $routes->get('tampilwisata/kategori/(:num)', 'TampilWisata::byKategori/$1');
 $routes->post('pengajuan', 'PengajuanController::create');
 $routes->get('tampilpengajuan', 'PengajuanController::index');
+$routes->get('review/(:num)', 'ReviewController::index/$1');          
+$routes->post('review', 'ReviewController::create');                 
+$routes->get('review/rerata/(:num)', 'ReviewController::rerata/$1'); 
