@@ -43,4 +43,24 @@ class PengajuanController extends ResourceController
             return $this->fail('Pengajuan gagal disimpan');
         }
     }
+
+    public function delete($id = null)
+    {
+        if (!$id) {
+            return $this->fail('ID pengajuan tidak diberikan.');
+        }
+
+        // Cek apakah data pengajuan dengan ID tersebut ada
+        $pengajuan = $this->model->find($id);
+        if (!$pengajuan) {
+            return $this->failNotFound("Pengajuan dengan ID $id tidak ditemukan.");
+        }
+
+        // Hapus data
+        if ($this->model->delete($id)) {
+            return $this->respondDeleted(['message' => "Pengajuan dengan ID $id berhasil dihapus."]);
+        } else {
+            return $this->fail('Gagal menghapus pengajuan.');
+        }
+    }
 }
