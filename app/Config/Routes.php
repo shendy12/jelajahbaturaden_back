@@ -23,3 +23,6 @@ $routes->get('tampilpengajuan', 'PengajuanController::index');
 $routes->get('review/(:num)', 'ReviewController::index/$1');          
 $routes->post('review', 'ReviewController::create');                 
 $routes->get('review/rerata/(:num)', 'ReviewController::rerata/$1'); 
+$routes->resource('wisataedit', ['controller' => 'WisataEditController']);
+$routes->put('wisataedit/(:num)', 'WisataEditController::update/$1');
+$routes->delete('wisataedit/(:num)', 'WisataEditController::delete/$1');
