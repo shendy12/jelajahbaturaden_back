@@ -1,46 +1,50 @@
-<?php
-namespace App\Controllers;
+<?php namespace App\Controllers;
 
 use App\Models\PengajuanModel;
-use App\Models\PenggunaModel;
 use CodeIgniter\RESTful\ResourceController;
 
 class PengajuanController extends ResourceController
 {
-    protected $modelName = 'App\Models\PengajuanModel';
-    protected $format = 'json';
+    protected $modelName = PengajuanModel::class;
+    protected $format    = 'json';
 
     public function create()
     {
-        $data = $this->request->getPost();
+        helper(['form']);
+        $validation = \Config\Services::validation();
 
-        // Validasi input data
-        if (empty($data['idpengguna']) || empty($data['namawisata']) || empty($data['deskripsi']) || empty($data['alamat']) || empty($data['foto']) || empty($data['idkategori'])) {
-            return $this->failValidationErrors('Semua kolom harus diisi.');
-        }
-
-        // Validasi apakah idpengguna ada di tabel pengguna
-        $penggunaModel = new PenggunaModel();
-        $pengguna = $penggunaModel->find($data['idpengguna']);
-
-        if (!$pengguna) {
-            return $this->fail('idpengguna tidak valid atau tidak ditemukan.');
-        }
-
-        // Menyimpan data ke tabel pengajuan
-        $pengajuanData = [
-            'idpengguna' => $data['idpengguna'],
-            'namawisata' => $data['namawisata'],
-            'deskripsi' => $data['deskripsi'],
-            'alamat' => $data['alamat'],
-            'foto' => $data['foto'],
-            'idkategori' => $data['idkategori'],
+        $validationRules = [
+            'idpengguna' => 'required|integer',
+            'namawisata' => 'required',
+            'deskripsi'  => 'required',
+            'alamat'     => 'required',
+            'idkategori' => 'required|integer',
+            'foto'       => 'uploaded[foto]|is_image[foto]|max_size[foto,2048]'
         ];
 
-        if ($this->model->insert($pengajuanData)) {
-            return $this->respondCreated(['message' => 'Pengajuan berhasil ditambahkan']);
+        if (!$this->validate($validationRules)) {
+            return $this->failValidationErrors($validation->getErrors());
+        }
+
+        // Ambil file foto
+        $file = $this->request->getFile('foto');
+        $fotoData = file_get_contents($file->getTempName());
+
+        $data = [
+            'idpengguna' => $this->request->getPost('idpengguna'),
+            'namawisata' => $this->request->getPost('namawisata'),
+            'deskripsi'  => $this->request->getPost('deskripsi'),
+            'alamat'     => $this->request->getPost('alamat'),
+            'idkategori' => $this->request->getPost('idkategori'),
+            'foto'       => $fotoData,
+        ];
+
+        $save = $this->model->insert($data);
+
+        if ($save) {
+            return $this->respondCreated(['status' => 201, 'message' => 'Pengajuan berhasil']);
         } else {
-            return $this->fail('Pengajuan gagal disimpan');
+            return $this->failServerError('Gagal menyimpan pengajuan');
         }
     }
 }
