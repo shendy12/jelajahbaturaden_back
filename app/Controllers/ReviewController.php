@@ -27,54 +27,44 @@ class ReviewController extends BaseController
         if (empty($idwisata)) {
             return $this->fail('ID wisata diperlukan', 400);
         }
-
-        // Ambil semua review berdasarkan id_wisata
+    
         $reviews = $this->reviewModel
-            ->select('review.*, pengguna.username')
-            ->join('pengguna', 'pengguna.id_pengguna = review.id_pengguna')
+            ->select('review.*, pengguna.username, pengguna.idpengguna AS id_pengguna')
+            ->join('pengguna', 'pengguna.idpengguna = review.idpengguna')
             ->where('review.idwisata', $idwisata)
             ->orderBy('review.date', 'DESC')
             ->findAll();
-
+    
         if (empty($reviews)) {
             return $this->respond([
                 'message' => 'Belum ada ulasan untuk wisata ini',
                 'data' => [],
             ], 200);
         }
-
+    
         return $this->respond($reviews, 200);
     }
-
+    
     /**
      * POST /review
      * Menyimpan ulasan baru dari pengguna
-     * JSON: { "idwisata": 1, "review": "Komentar", "rating": 5 }
+     * JSON: { "idwisata": 1, "review": "Komentar", "rating": 5, "id_pengguna": 1 }
      */
     public function create()
     {
-        $session = session();
-        $id_pengguna = $session->get('id_pengguna');
-
-        // Untuk keperluan development, jika session belum ada, bisa di-hardcode sementara:
-        // $id_pengguna = 1;
-
-        if (!$id_pengguna) {
-            return $this->failUnauthorized('Login diperlukan untuk memberi ulasan');
-        }
-
         $data = $this->request->getJSON(true);
 
-        if (!isset($data['idwisata'], $data['review'], $data['rating'])) {
-            return $this->fail('idwisata, review, dan rating wajib diisi', 400);
+        // Validasi data
+        if (!isset($data['idwisata'], $data['review'], $data['rating'], $data['id_pengguna'])) {
+            return $this->fail('idwisata, review, rating, dan id_pengguna wajib diisi', 400);
         }
 
         $reviewData = [
-            'id_pengguna' => $id_pengguna,
-            'idwisata'    => (int) $data['idwisata'],
-            'review'      => trim($data['review']),
-            'rating'      => (int) $data['rating'],
-            'date'        => date('Y-m-d H:i:s'),
+            'idpengguna' => (int) $data['id_pengguna'], // sesuai kolom di tabel
+            'idwisata'   => (int) $data['idwisata'],
+            'review'     => trim($data['review']),
+            'rating'     => (int) $data['rating'],
+            'date'       => date('Y-m-d H:i:s'),
         ];
 
         if (!$this->reviewModel->insert($reviewData)) {
@@ -86,7 +76,7 @@ class ReviewController extends BaseController
 
     /**
      * GET /review/rerata/{idwisata}
-     * Mengembalikan rata-rata rating dan jumlah review untuk sebuah wisata
+     * Mengembalikan rata-rata rating dan jumlah review untuk wisata
      */
     public function rerata($idwisata = null)
     {
@@ -108,5 +98,48 @@ class ReviewController extends BaseController
             'average_rating' => round((float) $average['rating'], 1),
             'jumlah' => $count,
         ]);
+    }
+
+    /**
+     * DELETE /review/{idreview}
+     */
+    public function delete($idreview = null)
+    {
+        if (!$idreview) {
+            return $this->fail('ID review diperlukan', 400);
+        }
+
+        $deleted = $this->reviewModel->delete($idreview);
+        if (!$deleted) {
+            return $this->failNotFound('Ulasan tidak ditemukan atau gagal dihapus');
+        }
+
+        return $this->respondDeleted(['message' => 'Ulasan berhasil dihapus']);
+    }
+
+    public function update($idreview = null)
+    {
+        if (!$idreview) {
+            return $this->fail('ID review diperlukan', 400);
+        }
+
+        $data = $this->request->getJSON(true);
+
+        if (!isset($data['review']) || !isset($data['rating'])) {
+            return $this->fail('review dan rating wajib diisi', 400);
+        }
+
+        $updateData = [
+            'review' => trim($data['review']),
+            'rating' => (int) $data['rating'],
+        ];
+
+        $updated = $this->reviewModel->update($idreview, $updateData);
+
+        if (!$updated) {
+            return $this->failServerError('Gagal mengupdate ulasan');
+        }
+
+        return $this->respond(['message' => 'Ulasan berhasil diperbarui'], 200);
     }
 }
