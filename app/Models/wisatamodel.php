@@ -59,3 +59,4 @@ class WisataModel extends Model
                     ->findAll();
     }
 }
+

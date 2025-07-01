@@ -21,4 +21,3 @@ $routes->get('tampilwisata/kategori/(:num)', 'TampilWisata::byKategori/$1');
 $routes->post('pengajuan', 'PengajuanController::create');
 $routes->resource('edit', ['controller' => 'EditController']);
 $routes->resource('wisataedit', ['controller' => 'WisataEditController']);
-
