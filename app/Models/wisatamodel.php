@@ -19,6 +19,7 @@ class WisataModel extends Model
         'rating',
         'idkategori',
         'tanggalposting'
+        
     ];
 
     protected $useTimestamps = false;              
