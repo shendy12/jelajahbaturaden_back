@@ -27,6 +27,7 @@ $routes->put('review/(:num)', 'ReviewController::update/$1');
 $routes->delete('review/(:num)', 'ReviewController::delete/$1'); 
 $routes->resource('wisataedit', ['controller' => 'WisataEditController']);
 $routes->put('wisataedit/(:num)', 'WisataEditController::update/$1');
+$routes->post('wisataedit/(:num)', 'WisataEditController::update/$1'); 
 $routes->delete('wisataedit/(:num)', 'WisataEditController::delete/$1');
 $routes->post('pencarian', 'PencarianController::search');
 $routes->get('pencarian/history/(:num)', 'PencarianController::history/$1');
