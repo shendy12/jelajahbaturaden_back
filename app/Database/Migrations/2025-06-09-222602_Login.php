@@ -8,7 +8,6 @@ class JelajahBatur extends Migration
 {
     public function up()
     {
-
         // Tabel Pengguna
         $this->forge->addField([
             'idpengguna' => ['type' => 'INT', 'constraint' => 10, 'auto_increment' => true],
@@ -34,7 +33,7 @@ class JelajahBatur extends Migration
             'namawisata'    => ['type' => 'VARCHAR', 'constraint' => 300],
             'deskripsi'     => ['type' => 'TEXT'],
             'alamat'        => ['type' => 'VARCHAR', 'constraint' => 300],
-            'foto'          => ['type' => 'BLOB'],
+            'foto'          => ['type' => 'VARCHAR', 'constraint' => 255], 
             'rating'        => ['type' => 'TINYINT', 'constraint' => 1],
             'idkategori'    => ['type' => 'INT', 'constraint' => 11],
             'tanggalposting'=> ['type' => 'TIMESTAMP'],
@@ -62,7 +61,7 @@ class JelajahBatur extends Migration
             'review'     => ['type' => 'TEXT'],
             'date'       => ['type' => 'TIMESTAMP'],
             'rating'     => ['type' => 'INT', 'constraint' => 11],
-            'foto'       => ['type' => 'BLOB'],
+            'foto'       => ['type' => 'VARCHAR', 'constraint' => 255], 
         ]);
         $this->forge->addKey('idreview', true);
         $this->forge->addForeignKey('idpengguna', 'pengguna', 'idpengguna');
@@ -73,10 +72,10 @@ class JelajahBatur extends Migration
         $this->forge->addField([
             'idpengajuan' => ['type' => 'INT', 'constraint' => 11, 'auto_increment' => true],
             'idpengguna'  => ['type' => 'INT', 'constraint' => 11],
-            'namawisata'    => ['type' => 'VARCHAR', 'constraint' => 300],
+            'namawisata'  => ['type' => 'VARCHAR', 'constraint' => 300],
             'deskripsi'   => ['type' => 'TEXT'],
             'alamat'      => ['type' => 'VARCHAR', 'constraint' => 300],
-            'foto'        => ['type' => 'BLOB'],
+            'foto'        => ['type' => 'VARCHAR', 'constraint' => 255], 
             'idkategori'  => ['type' => 'INT', 'constraint' => 11],
         ]);
         $this->forge->addKey('idpengajuan', true);
@@ -105,5 +104,5 @@ class JelajahBatur extends Migration
         $this->forge->dropTable('wisata');
         $this->forge->dropTable('kategori');
         $this->forge->dropTable('pengguna');
-}
+    }
 }

@@ -1,46 +1,68 @@
 <?php
+
 namespace App\Controllers;
 
 use App\Models\PengajuanModel;
-use App\Models\PenggunaModel;
 use CodeIgniter\RESTful\ResourceController;
 
 class PengajuanController extends ResourceController
 {
-    protected $modelName = 'App\Models\PengajuanModel';
-    protected $format = 'json';
+    protected $modelName = PengajuanModel::class;
+    protected $format    = 'json';
 
     public function create()
     {
-        $data = $this->request->getPost();
-
-        // Validasi input data
-        if (empty($data['idpengguna']) || empty($data['namawisata']) || empty($data['deskripsi']) || empty($data['alamat']) || empty($data['foto']) || empty($data['idkategori'])) {
-            return $this->failValidationErrors('Semua kolom harus diisi.');
-        }
-
-        // Validasi apakah idpengguna ada di tabel pengguna
-        $penggunaModel = new PenggunaModel();
-        $pengguna = $penggunaModel->find($data['idpengguna']);
-
-        if (!$pengguna) {
-            return $this->fail('idpengguna tidak valid atau tidak ditemukan.');
-        }
-
-        // Menyimpan data ke tabel pengajuan
-        $pengajuanData = [
-            'idpengguna' => $data['idpengguna'],
-            'namawisata' => $data['namawisata'],
-            'deskripsi' => $data['deskripsi'],
-            'alamat' => $data['alamat'],
-            'foto' => $data['foto'],
-            'idkategori' => $data['idkategori'],
+        helper(['form']);
+        $validationRules = [
+            'idpengguna' => 'required|integer',
+            'namawisata' => 'required',
+            'deskripsi'  => 'required',
+            'alamat'     => 'required',
+            'idkategori' => 'required|integer',
+            'foto'       => 'uploaded[foto]|is_image[foto]|max_size[foto,5120]', // max 5MB
         ];
 
-        if ($this->model->insert($pengajuanData)) {
-            return $this->respondCreated(['message' => 'Pengajuan berhasil ditambahkan']);
-        } else {
-            return $this->fail('Pengajuan gagal disimpan');
+        if (!$this->validate($validationRules)) {
+            return $this->failValidationErrors($this->validator->getErrors());
         }
+
+        // Simpan data awal tanpa foto
+        $model = new PengajuanModel();
+
+        $data = [
+            'idpengguna' => $this->request->getPost('idpengguna'),
+            'namawisata' => $this->request->getPost('namawisata'),
+            'deskripsi'  => $this->request->getPost('deskripsi'),
+            'alamat'     => $this->request->getPost('alamat'),
+            'idkategori' => $this->request->getPost('idkategori'),
+            'foto'       => '', // sementara kosong, akan diupdate setelah upload
+        ];
+
+        $model->insert($data);
+        $idpengajuan = $model->getInsertID(); // ambil id terakhir
+
+        // Tangani file foto
+        $foto = $this->request->getFile('foto');
+        $ekstensi = $foto->getExtension(); // jpg/png
+        $namaFoto = 'pengajuan_' . $idpengajuan . '.' . $ekstensi;
+
+        $uploadPath = ROOTPATH . 'public/uploads';
+        if (!is_dir($uploadPath)) {
+            mkdir($uploadPath, 0755, true);
+        }
+
+        $foto->move($uploadPath, $namaFoto);
+
+        // Update nama foto ke database
+        $model->update($idpengajuan, ['foto' => $namaFoto]);
+
+        return $this->respondCreated([
+            'status'  => 201,
+            'message' => 'Pengajuan berhasil disimpan',
+            'data'    => [
+                'idpengajuan' => $idpengajuan,
+                'foto'        => base_url('uploads/' . $namaFoto),
+            ]
+        ]);
     }
 }

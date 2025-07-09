@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Models\FavoritModel;
 use CodeIgniter\RESTful\ResourceController;
 
-class Favorit extends ResourceController
+class Favorite extends ResourceController
 {
     protected $favoriteModel;
 
