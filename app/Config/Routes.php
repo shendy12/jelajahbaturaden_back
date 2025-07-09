@@ -22,4 +22,5 @@ $routes->post('pengajuan', 'PengajuanController::create');
 $routes->get('tampilpengajuan', 'PengajuanController::index');
 $routes->resource('wisataedit', ['controller' => 'WisataEditController']);
 $routes->put('wisataedit/(:num)', 'WisataEditController::update/$1');
+$routes->post('wisataedit/(:num)', 'WisataEditController::update/$1'); 
 $routes->delete('wisataedit/(:num)', 'WisataEditController::delete/$1');
