@@ -59,7 +59,7 @@ class WisataEditController extends ResourceController
         return $this->fail('Gagal mengupdate data.');
     }
 
-    // DELETE /wisataedit/{id}
+    // DELETE(HAPUS) /wisataedit/{id}
         public function delete($id = null)
         {
             
