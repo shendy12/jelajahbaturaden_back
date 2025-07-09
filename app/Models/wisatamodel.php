@@ -24,7 +24,7 @@ class WisataModel extends Model
     protected $useTimestamps = false;              
     protected $returnType    = 'array';            
 
-    /**
+    /***
      * Mengambil semua wisata dan join ke tabel kategori.
      * Jika $idkategori diberikan, maka akan filter by kategori.
      */
